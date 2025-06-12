@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Kayıt Ol - Kütüphane Uygulaması{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0">Kayıt Ol</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('kayit') }}">
+                    <div class="mb-3">
+                        <label for="kullanici_adi" class="form-label">Kullanıcı Adı</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="kullanici_adi" name="kullanici_adi" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-posta Adresi</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="parola" class="form-label">Parola</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="parola" name="parola" required>
+                        </div>
+                        <div class="form-text">Parolanız en az 8 karakter uzunluğunda olmalıdır.</div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="parola_tekrar" class="form-label">Parola Tekrar</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="parola_tekrar" name="parola_tekrar" required>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-light text-center py-3">
+                <p class="mb-0">Zaten hesabınız var mı? <a href="{{ url_for('giris') }}">Giriş Yap</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

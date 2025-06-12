@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}{{ kitap.baslik }} - Kütüphane Uygulaması{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            {% if kitap.resim_url %}
+            <img src="{{ kitap.resim_url }}" class="card-img-top" alt="{{ kitap.baslik }}">
+            {% else %}
+            <div class="bg-light text-center p-5">
+                <i class="fas fa-book fa-5x text-secondary"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ kitap.baslik }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ kitap.yazar }}</h6>
+                
+                <div class="mt-3">
+                    {% if yorumlar|length > 0 %}
+                    {% set toplam_puan = 0 %}
+                    {% for yorum in yorumlar %}
+                    {% set toplam_puan = toplam_puan + yorum.puan %}
+                    {% endfor %}
+                    {% set ortalama_puan = (toplam_puan / yorumlar|length)|round(1) %}
+                    
+                    <div class="mb-2">
+                        <span class="fw-bold">Ortalama Puan:</span>
+                        <span class="ms-2">
+                            {% for i in range(5) %}
+                            {% if i < ortalama_puan|int %}
+                            <i class="fas fa-star text-warning"></i>
+                            {% elif i == ortalama_puan|int and ortalama_puan % 1 >= 0.5 %}
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                            {% else %}
+                            <i class="far fa-star text-warning"></i>
+                            {% endif %}
+                            {% endfor %}
+                            <span class="ms-2">{{ ortalama_puan }}</span>
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted">{{ yorumlar|length }} değerlendirme</span>
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <span class="text-muted">Henüz değerlendirme yok</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <ul class="list-group list-group-flush">
+                    {% if kitap.yayinci %}
+                    <li class="list-group-item"><strong>Yayınevi:</strong> {{ kitap.yayinci }}</li>
+                    {% endif %}
+                    
+                    {% if kitap.yayin_tarihi %}
+                    <li class="list-group-item"><strong>Yayın Tarihi:</strong> {{ kitap.yayin_tarihi.strftime('%d.%m.%Y') }}</li>
+                    {% endif %}
+                    
+                    {% if kitap.isbn %}
+                    <li class="list-group-item"><strong>ISBN:</strong> {{ kitap.isbn }}</li>
+                    {% endif %}
+                    
+                    {% if kitap.kategori %}
+                    <li class="list-group-item"><strong>Kategori:</strong> {{ kitap.kategori }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2">
+            <a href="{{ url_for('ana_sayfa') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Kitap Listesine Dön
+            </a>
+            <a href="{{ url_for('sohbet') }}#kitap_{{ kitap.id }}" class="btn btn-primary">
+                <i class="fas fa-comments me-2"></i>Bu Kitap Hakkında Sohbet Et
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Kitap Açıklaması</h4>
+            </div>
+            <div class="card-body">
+                {% if kitap.aciklama %}
+                <p class="card-text">{{ kitap.aciklama }}</p>
+                {% else %}
+                <p class="text-muted">Bu kitap için açıklama bulunmamaktadır.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h4 class="mb-0">Yorumlar ve Değerlendirmeler</h4>
+            </div>
+            <div class="card-body">
+                {% if current_user.is_authenticated %}
+                <form method="POST" action="{{ url_for('yorum_ekle', kitap_id=kitap.id) }}" class="mb-4">
+                    <div class="mb-3">
+                        <label for="puan" class="form-label">Puanınız:</label>
+                        <div class="rating">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="puan" id="puan1" value="1" required>
+                                <label class="form-check-label" for="puan1">1</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="puan" id="puan2" value="2">
+                                <label class="form-check-label" for="puan2">2</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="puan" id="puan3" value="3">
+                                <label class="form-check-label" for="puan3">3</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="puan" id="puan4" value="4">
+                                <label class="form-check-label" for="puan4">4</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="puan" id="puan5" value="5">
+                                <label class="form-check-label" for="puan5">5</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="icerik" class="form-label">Yorumunuz:</label>
+                        <textarea class="form-control" id="icerik" name="icerik" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Yorum Ekle</button>
+                </form>
+                <hr>
+                {% else %}
+                <div class="alert alert-info mb-4">
+                    Yorum yapabilmek için <a href="{{ url_for('giris') }}">giriş yapın</a> veya <a href="{{ url_for('kayit') }}">kayıt olun</a>.
+                </div>
+                {% endif %}
+                
+                {% if yorumlar %}
+                <div class="yorumlar">
+                    {% for yorum in yorumlar %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h5 class="mb-0">{{ yorum.kullanici.kullanici_adi }}</h5>
+                                    <small class="text-muted">{{ yorum.tarih.strftime('%d.%m.%Y %H:%M') }}</small>
+                                </div>
+                                <div>
+                                    {% for i in range(5) %}
+                                    {% if i < yorum.puan %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="card-text">{{ yorum.icerik }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-light">
+                    Bu kitap için henüz yorum yapılmamış. İlk yorumu siz yapın!
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

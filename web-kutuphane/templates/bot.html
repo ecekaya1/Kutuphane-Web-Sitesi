@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+{% block title %}Kitap Asistanı - Kütüphane Uygulaması{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        height: 500px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        background-color: #f9f9f9;
+    }
+    
+    .message {
+        margin-bottom: 15px;
+        padding: 10px 15px;
+        border-radius: 18px;
+        max-width: 75%;
+        position: relative;
+    }
+    
+    .user-message {
+        background-color: #dcf8c6;
+        margin-left: auto;
+        border-bottom-right-radius: 5px;
+    }
+    
+    .bot-message {
+        background-color: #f1f0f0;
+        margin-right: auto;
+        border-bottom-left-radius: 5px;
+    }
+    
+    .message-info {
+        font-size: 0.8em;
+        color: #777;
+        margin-top: 5px;
+    }
+    
+    .message-input {
+        border-radius: 20px;
+        padding-left: 15px;
+    }
+    
+    .send-button {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .bot-avatar {
+        font-size: 1.5em;
+        margin-right: 10px;
+    }
+    
+    .typing-indicator {
+        display: none;
+        padding: 10px;
+        background-color: #f1f0f0;
+        border-radius: 18px;
+        margin-bottom: 15px;
+        width: 70px;
+    }
+    
+    .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        float: left;
+        margin: 0 1px;
+        background-color: #9E9EA1;
+        display: block;
+        border-radius: 50%;
+        opacity: 0.4;
+    }
+    
+    .typing-indicator span:nth-of-type(1) {
+        animation: 1s blink infinite 0.3333s;
+    }
+    
+    .typing-indicator span:nth-of-type(2) {
+        animation: 1s blink infinite 0.6666s;
+    }
+    
+    .typing-indicator span:nth-of-type(3) {
+        animation: 1s blink infinite 0.9999s;
+    }
+    
+    @keyframes blink {
+        50% {
+            opacity: 1;
+        }
+    }
+    
+    .suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .suggestion {
+        background-color: #e3f2fd;
+        border: 1px solid #90caf9;
+        border-radius: 20px;
+        padding: 8px 15px;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .suggestion:hover {
+        background-color: #bbdefb;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .chat-container {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+        
+        .user-message {
+            background-color: #056162;
+            color: white;
+        }
+        
+        .bot-message {
+            background-color: #3b3b3b;
+            color: #eee;
+        }
+        
+        .typing-indicator {
+            background-color: #3b3b3b;
+        }
+        
+        .suggestion {
+            background-color: #1e3a5f;
+            border-color: #3d5a80;
+            color: #eee;
+        }
+        
+        .suggestion:hover {
+            background-color: #2d4a6d;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-lg-8 mx-auto">
+            <h2 class="mb-4 text-center">
+                <i class="fas fa-robot me-2"></i> Kitap Asistanı
+            </h2>
+            
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="chat-container" id="chatContainer">
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                Merhaba {{ current_user.kullanici_adi }}! Ben Kitap Asistanı. Size kitaplar, yazarlar ve okuma önerileri konusunda yardımcı olabilirim. Ne öğrenmek istersiniz?
+                            </div>
+                            <div class="message-info">KitapBot 🤖 - Şimdi</div>
+                        </div>
+                        
+                        <div class="typing-indicator" id="typingIndicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="suggestions mt-3">
+                        <div class="suggestion" onclick="sendSuggestion('Bana kitap önerir misin?')">Kitap önerisi</div>
+                        <div class="suggestion" onclick="sendSuggestion('Roman türünde ne önerirsin?')">Roman önerisi</div>
+                        <div class="suggestion" onclick="sendSuggestion('Bilim Kurgu kitapları hakkında bilgi verir misin?')">Bilim Kurgu</div>
+                        <div class="suggestion" onclick="sendSuggestion('Popüler yazarlar kimlerdir?')">Popüler yazarlar</div>
+                        <div class="suggestion" onclick="sendSuggestion('kişilik testi')">Kişilik testi başlat</div>
+                    </div>
+                    
+                    <div class="input-group mt-3">
+                        <input type="text" id="messageInput" class="form-control message-input" placeholder="Mesajınızı yazın...">
+                        <button class="btn btn-primary send-button" id="sendButton">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <p class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i> Kitap Asistanı, kitaplar ve yazarlar hakkında sorularınızı yanıtlamak için yapay zeka kullanır.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // Sohbet alanını en alta kaydır
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Mesaj gönderme fonksiyonu
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Kullanıcı mesajını ekle
+            addMessage(message, 'user-message', '{{ current_user.kullanici_adi }}');
+            
+            // Input alanını temizle
+            messageInput.value = '';
+            
+            // Yazıyor göstergesini göster
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+            
+            // Bot yanıtını al
+            fetch('/api/bot/cevap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mesaj: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Yazıyor göstergesini gizle
+                typingIndicator.style.display = 'none';
+                
+                // Bot yanıtını ekle (kısa bir gecikmeyle daha doğal görünmesi için)
+                setTimeout(() => {
+                    addMessage(data.cevap, 'bot-message', 'KitapBot 🤖', true);
+                }, 500);
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                typingIndicator.style.display = 'none';
+                
+                // Hata mesajı göster
+                addMessage('Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.', 'bot-message', 'KitapBot 🤖', true);
+            });
+        }
+        
+        // Mesaj ekleme fonksiyonu
+        function addMessage(content, className, sender, isBot = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'message-info';
+            
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + 
+                        now.getMinutes().toString().padStart(2, '0');
+            
+            infoDiv.textContent = `${sender} - ${time}`;
+            
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(infoDiv);
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Önerilen mesajı gönder
+        window.sendSuggestion = function(suggestion) {
+            messageInput.value = suggestion;
+            sendMessage();
+        };
+        
+        // Enter tuşu ile mesaj gönderme
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Gönder butonu ile mesaj gönderme
+        sendButton.addEventListener('click', sendMessage);
+        
+        // Sayfa yüklendiğinde input alanına odaklan
+        messageInput.focus();
+        
+        // Sayfa yüklendiğinde sohbet alanını en alta kaydır
+        scrollToBottom();
+    });
+</script>
+{% endblock %} 
