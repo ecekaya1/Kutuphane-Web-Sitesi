@@ -76,7 +76,3 @@ Uygulama SQLite veritabanı kullanmaktadır. İlk çalıştırmada otomatik olar
 3. Değişikliklerinizi commit edin (`git commit -am 'Yeni özellik: açıklama'`)
 4. Dalınıza push yapın (`git push origin yeni-ozellik`)
 5. Pull Request oluşturun
-
-## Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır. Daha fazla bilgi için `LICENSE` dosyasına bakın. 
