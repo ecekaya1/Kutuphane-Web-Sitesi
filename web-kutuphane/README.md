@@ -69,10 +69,3 @@ Uygulama SQLite veritabanı kullanmaktadır. İlk çalıştırmada otomatik olar
 - **Veritabanı:** SQLite
 - **Gerçek Zamanlı İletişim:** Socket.IO
 
-## Katkıda Bulunma
-
-1. Bu depoyu fork edin
-2. Yeni bir özellik dalı oluşturun (`git checkout -b yeni-ozellik`)
-3. Değişikliklerinizi commit edin (`git commit -am 'Yeni özellik: açıklama'`)
-4. Dalınıza push yapın (`git push origin yeni-ozellik`)
-5. Pull Request oluşturun
