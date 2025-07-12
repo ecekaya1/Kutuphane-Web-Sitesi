@@ -1,6 +1,5 @@
 # Kutuphane-Web-Sitesi
 
-Saniye Ece Kaya - 170422051
 
 ![image](https://github.com/user-attachments/assets/f242549a-e824-4fd3-b0d0-4114bbe62a8c)
 ![image](https://github.com/user-attachments/assets/fac930bb-dff4-4c8f-a626-d3284f817d1e)
